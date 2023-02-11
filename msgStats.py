@@ -3,9 +3,9 @@
 # - Message count
 # - Most used words in conversation
 # - Reactions recived count
+# - Reactions given count
 #To do:
 # - Most used words by each participant 
-# - Reactions given count
 # - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
@@ -97,7 +97,7 @@ def countWords():
                     dictWords[word] += 1
     return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
 
-#Returns a dictionary with sum of reactions under all messages
+#Returns a dictionary with sum of reactions recived under all sent messages
 def countReactionsRecived(file):
     data = readFile(file)
     dictReacts = {key:0 for key in getParticipants(data)}
@@ -106,12 +106,36 @@ def countReactionsRecived(file):
             dictReacts[message['sender_name']] += len(message['reactions'])
     return dictReacts
 
+
+#Returns sorted list of participants and numbers of reactions under their messages
 def countReactionsRecivedAll():
     files = getFiles(MSG_FOLDER_NAME)
     dictReacts = countReactionsRecived(files.pop(0))
 
     for file in files:
         tempDict = countReactionsRecived(file)
+        for key in dictReacts:
+            dictReacts[key] += tempDict[key]
+    return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+
+
+#Returns a dictionary with sum of reactions given all sent messages
+def countReactionsGiven(file):
+    data = readFile(file)
+    dictReacts = {key:0 for key in getParticipants(data)}
+    for message in data['messages']:
+        if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
+            for reaction in message['reactions']:
+                dictReacts[reaction['actor']] += 1
+    return dictReacts
+    
+#Returns sorted list of participants and numbers of reactions left under messages
+def countReactionsGivenAll():
+    files = getFiles(MSG_FOLDER_NAME)
+    dictReacts = countReactionsGiven(files.pop(0))
+
+    for file in files:
+        tempDict = countReactionsGiven(file)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
@@ -128,6 +152,7 @@ if __name__ == "__main__":
     #print(countReactionsRecived("message_14.json"))
     #print(countReactionsRecivedAll())
     #print(messagesCountAll())
-    count = countWords()
-    for i in range (150):
-        print(str(i) +"." + str(count[i]))
+    print(countReactionsGivenAll())
+   # count = countWords()
+    #for i in range (150):
+    #    print(str(i) +"." + str(count[i]))
