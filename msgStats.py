@@ -5,10 +5,10 @@
 # - Reactions recived count
 # - Reactions given count
 # - Most reacted to message by each person
-#To do:
-# - Most used words by each participant 
 # - Images sent count
 # - 'XD' sent count
+#To do:
+# - Most used words by each participant 
 # - Directly addressed count (@name)
 # - Avg message length
 #Other to do things:
@@ -183,6 +183,28 @@ def mediaCountAll():
             dictCountAll[key] += count[key]
     return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
 
+#Counts all the times 'XD' was written by each participant
+#Takes data form one json file
+def XDCount(file):
+    data = readFile(file)
+    dictXD = {key:0 for key in getParticipants(data)}
+    for message in data['messages']:
+        if message['sender_name'] in dictXD.keys() and 'content' in message: 
+            if 'xd' in message['content']:
+                dictXD[message['sender_name']] +=1
+    return dictXD        
+
+#Counts all the times 'XD' was written by each participant in whole conversation
+def XDCountAll():
+    files = getFiles(MSG_FOLDER_NAME)
+    dictCountAll = messagesCount(files.pop(0))
+    counts = [XDCount(file) for file in files]
+    for count in counts:
+        for key in count:
+            dictCountAll[key] += count[key]
+    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+
+
 
 
 
@@ -198,6 +220,7 @@ if __name__ == "__main__":
     #print(countReactionsGivenAll())
     #print(mostReactedToMessage())
     print(mediaCountAll())
+    print(XDCountAll())
    # count = countWords()
     #for i in range (150):
     #    print(str(i) +"." + str(count[i]))
