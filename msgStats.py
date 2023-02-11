@@ -140,7 +140,24 @@ def countReactionsGivenAll():
             dictReacts[key] += tempDict[key]
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
 
-
+def mostReactedToMessage():
+    files = getFiles(MSG_FOLDER_NAME)
+    data = [readFile(file) for file in files]
+    dictReacts = {key:[0,''] for key in getParticipants(data[0])}
+    for file in data:
+        for message in file['messages']:
+            if 'reactions' in message:
+                if len(message['reactions']) > dictReacts[message['sender_name']][0]:
+                    dictReacts[message['sender_name']][0] = len(message['reactions'])
+                    if 'content' in message:
+                        dictReacts[message['sender_name']][1] = message['content']
+                    elif 'videos' in message:
+                        dictReacts[message['sender_name']][1] = message['videos'][0]['uri']
+                    elif 'photos' in message:
+                        dictReacts[message['sender_name']][1] = message['photos'][0]['uri']
+                    else:
+                        dictReacts[message['sender_name']][1] = 'unrecognised'
+    return sorted(dictReacts.items(), key=lambda x: x[1][0], reverse=True)
 
 
 
@@ -152,7 +169,8 @@ if __name__ == "__main__":
     #print(countReactionsRecived("message_14.json"))
     #print(countReactionsRecivedAll())
     #print(messagesCountAll())
-    print(countReactionsGivenAll())
+    #print(countReactionsGivenAll())
+    print(mostReactedToMessage())
    # count = countWords()
     #for i in range (150):
     #    print(str(i) +"." + str(count[i]))
