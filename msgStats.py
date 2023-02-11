@@ -7,9 +7,9 @@
 # - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
+# - Directly addressed count (@name)
 #To do:
 # - Most used words by each participant 
-# - Directly addressed count (@name)
 # - Avg message length
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
@@ -190,19 +190,22 @@ def XDCount(file):
     dictXD = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if message['sender_name'] in dictXD.keys() and 'content' in message: 
-            if 'xd' in message['content']:
+            if 'xd' in message['content'].lower():
                 dictXD[message['sender_name']] +=1
     return dictXD        
 
 #Counts all the times 'XD' was written by each participant in whole conversation
 def XDCountAll():
     files = getFiles(MSG_FOLDER_NAME)
-    dictCountAll = messagesCount(files.pop(0))
+    dictCountAll = XDCount(files.pop(0))
     counts = [XDCount(file) for file in files]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
     return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+
+
+#Count 
 
 
 
@@ -219,7 +222,7 @@ if __name__ == "__main__":
     #print(messagesCountAll())
     #print(countReactionsGivenAll())
     #print(mostReactedToMessage())
-    print(mediaCountAll())
+    #print(mediaCountAll())
     print(XDCountAll())
    # count = countWords()
     #for i in range (150):
