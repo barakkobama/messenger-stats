@@ -1,11 +1,12 @@
 #Funcionalities:
 #Done:
 # - Message count
-#To do:
 # - Most used words in conversation
-# - Most used words by each participants 
-# - Reactions given count
 # - Reactions recived count
+#To do:
+# - Most used words by each participant 
+# - Reactions given count
+# - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
 # - Directly addressed count (@name)
@@ -14,6 +15,9 @@
 # - Allow to give path to folder messeges as an argument
 # - Data visualisations
 # - Ignore punctuation marks
+# - Parse Polish symbols
+# - Show info like time of creation
+# - Allow to view by month/year
 
 
 import json
@@ -37,10 +41,10 @@ def getFiles(path):
 
 #Returns list of participants in a conversation
 def getParticipants(data):
-    participantsList = []
+    participantslist = []
     for person in data['participants']:
-        participantsList.append(person['name'])
-    return participantsList
+        participantslist.append(person['name'])
+    return participantslist
 
 
 #Retrun a dictionary with ammount of messeges sent by each person
@@ -61,7 +65,7 @@ def messagesCountAll():
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
-    return dictCountAll
+    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
 
 #Returns a set of all unique words in a single file
 def getWordsUsed(file):
@@ -81,7 +85,7 @@ def getWordsUsedAll():
         allWords = allWords | getWordsUsed(file)
     return allWords
 
-#Retruns a list of 
+#Retruns a sorted list of words and the amout of times they were used
 def countWords():
     dictWords = {key:0 for key in getWordsUsedAll()}
     files = getFiles(MSG_FOLDER_NAME)
@@ -93,12 +97,37 @@ def countWords():
                     dictWords[word] += 1
     return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
 
+#Returns a dictionary with sum of reactions under all messages
+def countReactionsRecived(file):
+    data = readFile(file)
+    dictReacts = {key:0 for key in getParticipants(data)}
+    for message in data['messages']:
+        if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
+            dictReacts[message['sender_name']] += len(message['reactions'])
+    return dictReacts
+
+def countReactionsRecivedAll():
+    files = getFiles(MSG_FOLDER_NAME)
+    dictReacts = countReactionsRecived(files.pop(0))
+
+    for file in files:
+        tempDict = countReactionsRecived(file)
+        for key in dictReacts:
+            dictReacts[key] += tempDict[key]
+    return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+
+
+
 
 
 
 
 
 if __name__ == "__main__":
+    ...
+    #print(countReactionsRecived("message_14.json"))
+    #print(countReactionsRecivedAll())
+    #print(messagesCountAll())
     count = countWords()
-    for i in range (100):
+    for i in range (150):
         print(str(i) +"." + str(count[i]))
