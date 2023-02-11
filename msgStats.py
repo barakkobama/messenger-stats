@@ -7,8 +7,8 @@
 # - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
-# - Directly addressed count (@name)
 #To do:
+# - Directly addressed count (@name)
 # - Most used words by each participant 
 # - Avg message length
 #Other to do things:
@@ -19,6 +19,8 @@
 # - Show info like time of creation
 # - Allow to view by month/year
 # - Allow to filter reactions
+# - Maybe optimize so files are read once at the launch
+
 
 
 import json
@@ -26,6 +28,8 @@ import os
 
 
 MSG_FOLDER_NAME = 'messeges/'
+
+
 
 #Reads json file
 def readFile(fileName):
@@ -50,7 +54,7 @@ def getParticipants(data):
 
 #Retrun a dictionary with ammount of messeges sent by each person
 #Takes data form one json file
-def messagesCount(file):
+def countMessages(file):
     data = readFile(file)
     dictMsg = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
@@ -59,10 +63,9 @@ def messagesCount(file):
     return dictMsg                                        #will be messeges sent by him
 
 #Counts all messenges sent by each person
-def messagesCountAll():
-    files = getFiles(MSG_FOLDER_NAME)
-    dictCountAll = messagesCount(files.pop(0))
-    counts = [messagesCount(file) for file in files]
+def countMessagesAll(files):
+    dictCountAll = countMessages(files.pop(0))
+    counts = [countMessages(file) for file in files]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
@@ -79,17 +82,15 @@ def getWordsUsed(file):
 
 
 #Retruns a set of all unique words in all files
-def getWordsUsedAll():
-    files = getFiles(MSG_FOLDER_NAME)
+def getWordsUsedAll(files):
     allWords = getWordsUsed(files.pop(0))
     for file in files:
         allWords = allWords | getWordsUsed(file)
     return allWords
 
 #Retruns a sorted list of words and the amout of times they were used
-def countWords():
-    dictWords = {key:0 for key in getWordsUsedAll()}
-    files = getFiles(MSG_FOLDER_NAME)
+def countWords(files):
+    dictWords = {key:0 for key in getWordsUsedAll(files)}
     for file in files:
         for message in readFile(file)['messages']:
             if 'content' in message:
@@ -109,10 +110,8 @@ def countReactionsRecived(file):
 
 
 #Returns sorted list of participants and numbers of reactions under their messages
-def countReactionsRecivedAll():
-    files = getFiles(MSG_FOLDER_NAME)
+def countReactionsRecivedAll(files):
     dictReacts = countReactionsRecived(files.pop(0))
-
     for file in files:
         tempDict = countReactionsRecived(file)
         for key in dictReacts:
@@ -131,8 +130,7 @@ def countReactionsGiven(file):
     return dictReacts
     
 #Returns sorted list of participants and numbers of reactions left under messages
-def countReactionsGivenAll():
-    files = getFiles(MSG_FOLDER_NAME)
+def countReactionsGivenAll(files):
     dictReacts = countReactionsGiven(files.pop(0))
 
     for file in files:
@@ -142,8 +140,7 @@ def countReactionsGivenAll():
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
 
 #Returns sorted list of participants, reactions recived, and the messege that recived the most reactions
-def mostReactedToMessage():
-    files = getFiles(MSG_FOLDER_NAME)
+def mostReactedToMessage(files):
     data = [readFile(file) for file in files]
     dictReacts = {key:[0,''] for key in getParticipants(data[0])}
     for file in data:
@@ -174,8 +171,7 @@ def mediaCount(file):
     return dictMedia                                    
 
 #Counts all images and videos sent by each person
-def mediaCountAll():
-    files = getFiles(MSG_FOLDER_NAME)
+def mediaCountAll(files):
     dictCountAll = mediaCount(files.pop(0))
     counts = [mediaCount(file) for file in files]
     for count in counts:
@@ -195,8 +191,7 @@ def XDCount(file):
     return dictXD        
 
 #Counts all the times 'XD' was written by each participant in whole conversation
-def XDCountAll():
-    files = getFiles(MSG_FOLDER_NAME)
+def XDCountAll(files):
     dictCountAll = XDCount(files.pop(0))
     counts = [XDCount(file) for file in files]
     for count in counts:
@@ -204,8 +199,39 @@ def XDCountAll():
             dictCountAll[key] += count[key]
     return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
 
+#Counts summaric length of every message send by each participant
+#Takes data form one json file
+def messageLen(file):
+    data = readFile(file)
+    dictLen = {key:0 for key in getParticipants(data)}
+    for message in data['messages']:
+        if message['sender_name'] in dictLen.keys() and 'content' in message: 
+            dictLen[message['sender_name']] += len(message['constent'])
+    return dictLen       
 
-#Count 
+#Counts summaric length of every message each participant in whole conversation
+def messageLenAll(files):
+    dictLenAll = messageLen(files.pop(0))
+    counts = [messageLen(file) for file in files]
+    for count in counts:
+        for key in count:
+            dictLenAll[key] += count[key]
+    return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
+
+def main():
+    files = getFiles(MSG_FOLDER_NAME)
+    participants = getParticipants(readFile(files[0]))
+    msgCount = countMessagesAll(files)
+    wordsUsed = countWords(files)
+    reactionsRecived = []
+    reactionsGiven = []
+    mostReactedToMessage = []
+    mediaSent = []
+    xdCount = []
+    msgLen = []
+    print(msgCount)
+    print(wordsUsed[0:10])
+
 
 
 
@@ -216,14 +242,4 @@ def XDCountAll():
 
 
 if __name__ == "__main__":
-    ...
-    #print(countReactionsRecived("message_14.json"))
-    #print(countReactionsRecivedAll())
-    #print(messagesCountAll())
-    #print(countReactionsGivenAll())
-    #print(mostReactedToMessage())
-    #print(mediaCountAll())
-    print(XDCountAll())
-   # count = countWords()
-    #for i in range (150):
-    #    print(str(i) +"." + str(count[i]))
+    main()
