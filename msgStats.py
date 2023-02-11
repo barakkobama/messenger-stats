@@ -4,9 +4,9 @@
 # - Most used words in conversation
 # - Reactions recived count
 # - Reactions given count
+# - Most reacted to message by each person
 #To do:
 # - Most used words by each participant 
-# - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
 # - Directly addressed count (@name)
@@ -18,6 +18,7 @@
 # - Parse Polish symbols
 # - Show info like time of creation
 # - Allow to view by month/year
+# - Allow to filter reactions
 
 
 import json
@@ -140,6 +141,7 @@ def countReactionsGivenAll():
             dictReacts[key] += tempDict[key]
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
 
+#Returns sorted list of participants, reactions recived, and the messege that recived the most reactions
 def mostReactedToMessage():
     files = getFiles(MSG_FOLDER_NAME)
     data = [readFile(file) for file in files]
@@ -160,6 +162,30 @@ def mostReactedToMessage():
     return sorted(dictReacts.items(), key=lambda x: x[1][0], reverse=True)
 
 
+#Retrun a dictionary with ammount of images and videos sent by each person
+#Takes data form one json file
+def mediaCount(file):
+    data = readFile(file)
+    dictMedia = {key:0 for key in getParticipants(data)}
+    for message in data['messages']:
+        if message['sender_name'] in dictMedia.keys():
+            if 'videos' in message or 'photos' in message:   
+                dictMedia[message['sender_name']] +=1          
+    return dictMedia                                    
+
+#Counts all images and videos sent by each person
+def mediaCountAll():
+    files = getFiles(MSG_FOLDER_NAME)
+    dictCountAll = mediaCount(files.pop(0))
+    counts = [mediaCount(file) for file in files]
+    for count in counts:
+        for key in count:
+            dictCountAll[key] += count[key]
+    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+
+
+
+
 
 
 
@@ -170,7 +196,8 @@ if __name__ == "__main__":
     #print(countReactionsRecivedAll())
     #print(messagesCountAll())
     #print(countReactionsGivenAll())
-    print(mostReactedToMessage())
+    #print(mostReactedToMessage())
+    print(mediaCountAll())
    # count = countWords()
     #for i in range (150):
     #    print(str(i) +"." + str(count[i]))
