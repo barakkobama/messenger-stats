@@ -11,12 +11,14 @@
 # - Account for symbols and emojis
 # - Avg message length
 # - Directly addressed count (@name) - use count specific word
+# - Frequency of given word ocurrence
+# - Proportion of reactions recived to messeges sent
+# - Allow to chose specific reaction
 #To do:
 # - Most used words by each participant 
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
 # - Allow to view by month/year
-# - Allow to filter reactions
 #Optimalisatio ideas:
 # - Load all the files at the start [DONE]
 # - Convert functions to work on "data" not "file" [DONE]
@@ -30,6 +32,13 @@ import os
 from ftfy import fix_text
 
 MSG_FOLDER_NAME = 'messeges/'
+
+#REACTIONS
+THUMBS_UP = '👍'
+HEART = '❤'
+HAHA = '😆'
+WOW = '😮'
+THUMBS_DOWN = '👎'
 
 
 
@@ -125,19 +134,25 @@ def countWords(dataAll,sort = True):
     return dictWords
 
 #Returns a dictionary with sum of reactions recived under all sent messages
-def countReactionsRecived(data,reaction = 'all'):
+def countReactionsRecived(data,whatReaction = 'all'):
     dictReacts = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
-            dictReacts[message['sender_name']] += len(message['reactions'])
+            if whatReaction == 'all':
+                dictReacts[message['sender_name']] += len(message['reactions'])
+            else:
+                for reaction in message['reactions']:
+                    if reaction['reaction'] == whatReaction:
+                        dictReacts[message['sender_name']] += 1
+
     return dictReacts
 
 
 #Returns sorted list of participants and numbers of reactions under their messages
-def countReactionsRecivedAll(dataAll,sort = True):
-    dictReacts = countReactionsRecived(dataAll.pop(0))
+def countReactionsRecivedAll(dataAll,whatReaction = 'all',sort = True):
+    dictReacts = countReactionsRecived(dataAll.pop(0),whatReaction)
     for data in dataAll:
-        tempDict = countReactionsRecived(data)
+        tempDict = countReactionsRecived(data,whatReaction)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
     if sort:
@@ -249,7 +264,7 @@ def countMessageLenAll(dataAll,sort = True):
         return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
     return dictLenAll
 
-#Return the date of the first send message
+#Returns the date of the first send message
 def getFirstMsgDate(dataAll):
     data = dataAll[len(dataAll)-1]
     firstMsgMs = data['messages'][len(data['messages'])-1]['timestamp_ms']
@@ -282,11 +297,26 @@ def countWordFreq(dataAll,word,sort=True):
         return sorted(dictWordFreq.items(), key=lambda x: x[1], reverse=True)
     return dictWordFreq
 
+#Returns proportions of reactions recived/messeges sent
+def countReactionProp(dataAll,whatReaction = 'all',sort=True):
+    msgAmmount = countMessagesAll(dataAll,False)
+    reactAmmount = countReactionsRecivedAll(dataAll,whatReaction,sort = False)
+    dictReactProp = {key:0 for key in getParticipants(dataAll[0])}
+    i = 0
+    for key in dictReactProp.keys():
+        dictReactProp[key] = round(reactAmmount[key]/msgAmmount[key],4)*100
+        i+=1
+    if sort:
+        return sorted(dictReactProp.items(), key=lambda x: x[1], reverse=True)
+    return dictReactProp
+
+
 
 def main():
     files = getFiles(MSG_FOLDER_NAME)
-    #dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
-    dataAll = [readFile(file) for file in files]
+    dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
+
+    #dataAll = [readFile(file) for file in files]
 
     #Testing
     #print("------------Message Conut------------")
@@ -330,9 +360,26 @@ def main():
     #avgLen = countAvgMessageLen(dataAll)
     #print(avgLen)
 
-    print("------Word ocurrence frequency---------------")
-    wordFreq = countWordFreq(dataAll,'kurw')
-    print(wordFreq)
+    #print("------Word ocurrence frequency---------------")
+    #wordFreq = countWordFreq(dataAll,'many')
+    #print(wordFreq)
+
+    #print("-------Reaction recived to messeges sent proporction--------")
+    #reactProp = countReactionProp(dataAll)
+    #print(reactProp)
+
+    #print("-----------Reaction count: HAHA-----------------------")
+    #reactCount = countReactionsRecivedAll(dataAll,HAHA)
+    #print(reactCount)
+
+    
+    #print("-------Reaction HAHA recived to messeges sent proporction--------")
+    #reactProp = countReactionProp(dataAll,HAHA)
+    #print(reactProp)
+
+    print("-------Reaction HEART recived to messeges sent proporction--------")
+    reactProp = countReactionProp(dataAll,HEART)
+    print(reactProp)
 
 
 
