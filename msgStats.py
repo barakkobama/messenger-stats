@@ -6,7 +6,7 @@
 # - Reactions given count
 # - Most reacted to message by each person
 # - Images sent count
-# - 'XD' sent count
+# - Specific word sent count
 # - Date of first sent message
 #To do:
 # - Directly addressed count (@name)
@@ -184,21 +184,21 @@ def mediaCountAll(files):
             dictCountAll[key] += count[key]
     return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
 
-#Counts all the times 'XD' was written by each participant
+#Counts all the times word given as an argument was written by each participant
 #Takes data form one json file
-def XDCount(file):
+def wordCount(file,word):
     data = readFile(file)
-    dictXD = {key:0 for key in getParticipants(data)}
+    dictWord = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
-        if message['sender_name'] in dictXD.keys() and 'content' in message: 
-            if 'xd' in message['content'].lower():
-                dictXD[message['sender_name']] +=1
-    return dictXD        
+        if message['sender_name'] in dictWord.keys() and 'content' in message: 
+            if word in message['content'].lower():
+                dictWord[message['sender_name']] +=1
+    return dictWord       
 
-#Counts all the times 'XD' was written by each participant in whole conversation
-def XDCountAll(files):
-    dictCountAll = XDCount(files.pop(0))
-    counts = [XDCount(file) for file in files]
+#Counts all the times word given as an argument was written by each participant in whole conversation
+def CountAll(files):
+    dictCountAll = wordCount(files.pop(0))
+    counts = [wordCount(file) for file in files]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
