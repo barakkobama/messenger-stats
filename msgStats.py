@@ -85,13 +85,15 @@ def countMessages(data):
     return dictMsg                                        #will be messeges sent by him
 
 #Counts all messenges sent by each person
-def countMessagesAll(dataAll):
+def countMessagesAll(dataAll,sort = True):
     dictCountAll = countMessages(dataAll.pop(0))
     counts = [countMessages(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
-    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    return dictCountAll
 
 #Returns a set of all unique words in a single file
 def getWordsUsed(data):
@@ -110,7 +112,7 @@ def getWordsUsedAll(dataAll):
     return allWords
 
 #Retruns a sorted list of words and the amout of times they were used
-def countWords(dataAll):
+def countWords(dataAll,sort = True):
     dictWords = {key:0 for key in getWordsUsedAll(dataAll)}
     for data in dataAll:
         for message in data['messages']:
@@ -118,7 +120,9 @@ def countWords(dataAll):
                 words = [word.lower() for word in message['content'].split()]
                 for word in words:
                     dictWords[word] += 1
-    return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
+    return dictWords
 
 #Returns a dictionary with sum of reactions recived under all sent messages
 def countReactionsRecived(data,reaction = 'all'):
@@ -130,13 +134,15 @@ def countReactionsRecived(data,reaction = 'all'):
 
 
 #Returns sorted list of participants and numbers of reactions under their messages
-def countReactionsRecivedAll(dataAll):
+def countReactionsRecivedAll(dataAll,sort = True):
     dictReacts = countReactionsRecived(dataAll.pop(0))
     for data in dataAll:
         tempDict = countReactionsRecived(data)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
-    return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+    return dictReacts
 
 
 #Returns a dictionary with sum of reactions given all sent messages
@@ -149,17 +155,19 @@ def countReactionsGiven(data):
     return dictReacts
     
 #Returns sorted list of participants and numbers of reactions left under messages
-def countReactionsGivenAll(dataAll):
+def countReactionsGivenAll(dataAll,sort = True):
     dictReacts = countReactionsGiven(dataAll.pop(0))
 
     for data in dataAll:
         tempDict = countReactionsGiven(data)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
-    return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
+    return dictReacts
 
 #Returns sorted list of participants, reactions recived, and the messege that recived the most reactions
-def mostReactedToMessage(dataAll):
+def mostReactedToMessage(dataAll,sort = True):
     dictReacts = {key:[0,''] for key in getParticipants(dataAll[0])}
     for data in dataAll:
         for message in data['messages']:
@@ -174,7 +182,9 @@ def mostReactedToMessage(dataAll):
                         dictReacts[message['sender_name']][1] = message['photos'][0]['uri']
                     else:
                         dictReacts[message['sender_name']][1] = 'unrecognised'
-    return sorted(dictReacts.items(), key=lambda x: x[1][0], reverse=True)
+    if sort:
+        return sorted(dictReacts.items(), key=lambda x: x[1][0], reverse=True)
+    return dictReacts
 
 
 #Retrun a dictionary with ammount of images and videos sent by each person
@@ -188,13 +198,15 @@ def countMedia(data):
     return dictMedia                                    
 
 #Counts all images and videos sent by each person
-def countMediaAll(dataAll):
+def countMediaAll(dataAll,sort=True):
     dictCountAll = countMedia(dataAll.pop(0))
     counts = [countMedia(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
-    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    return dictCountAll
 
 #Counts all the times word given as an argument was written by each participant
 #Takes data form one json file
@@ -207,13 +219,15 @@ def countGivenWord(data,word):
     return dictWord       
 
 #Counts all the times word given as an argument was written by each participant in whole conversation
-def countGivenWordAll(dataAll,word):
+def countGivenWordAll(dataAll,word,sort = True):
     dictCountAll = countGivenWord(dataAll.pop(0),word)
     counts = [countGivenWord(data,word) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
-    return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
+    return dictCountAll
 
 #Counts summaric length of every message send by each participant
 #Takes data form one json file
@@ -225,13 +239,15 @@ def countMessageLen(data):
     return dictLen       
 
 #Counts summaric length of every message each participant in whole conversation
-def countMessageLenAll(dataAll):
+def countMessageLenAll(dataAll,sort = True):
     dictLenAll = countMessageLen(dataAll.pop(0))
     counts = [countMessageLen(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictLenAll[key] += count[key]
-    return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
+    return dictLenAll
 
 #Return the date of the first send message
 def getFirstMsgDate(dataAll):
@@ -241,15 +257,30 @@ def getFirstMsgDate(dataAll):
     return datetime.datetime.fromtimestamp(firstMsgUnixUDT).strftime('%d-%m-%Y %H:%M:%S')
 
 #Returns the avrage message length for each participant
-def countAvgMessageLen(dataAll):
-    msgLen = countMessageLenAll(dataAll)
-    msgAmmount = countMessagesAll(dataAll)
+def countAvgMessageLen(dataAll,sort = True):
+    msgLen = countMessageLenAll(dataAll,False)
+    msgAmmount = countMessagesAll(dataAll,False)
     dictAvgLen = {key:0 for key in getParticipants(dataAll[0])}
     i = 0
     for key in dictAvgLen.keys():
-        dictAvgLen[key] = round(msgLen[i][1]/msgAmmount[i][1],3)
+        dictAvgLen[key] = round(msgLen[key]/msgAmmount[key],3)
         i+=1
-    return sorted(dictAvgLen.items(), key=lambda x: x[1], reverse=True)
+    if sort:
+        return sorted(dictAvgLen.items(), key=lambda x: x[1], reverse=True)
+    return dictAvgLen
+
+#Retruns the procentage of how many messeges contain a given word
+def countWordFreq(dataAll,word,sort=True):
+    wordCount = countGivenWordAll(dataAll,word,False)
+    msgAmmount = countMessagesAll(dataAll,False)
+    dictWordFreq = {key:0 for key in getParticipants(dataAll[0])}
+    i = 0
+    for key in dictWordFreq.keys():
+        dictWordFreq[key] = round(wordCount[key]/msgAmmount[key],4)*100
+        i+=1
+    if sort:
+        return sorted(dictWordFreq.items(), key=lambda x: x[1], reverse=True)
+    return dictWordFreq
 
 
 def main():
@@ -287,8 +318,8 @@ def main():
     #print(mediaSent)
 
     #print("------------word Conut------------")
-    #xdCount = countGivenWordAll(dataAll,'xd')
-    #print(xdCount)
+    #wordCount = countGivenWordAll(dataAll,'kurwa')
+    #print(wordCount)
 
 
     #print("----------Sumaric length of all messages--------")
@@ -296,8 +327,12 @@ def main():
     #print(msgLen)
 
     #print("----------Avrage message length----------------")
-    avgLen = countAvgMessageLen(dataAll)
-    print(avgLen)
+    #avgLen = countAvgMessageLen(dataAll)
+    #print(avgLen)
+
+    print("------Word ocurrence frequency---------------")
+    wordFreq = countWordFreq(dataAll,'kurw')
+    print(wordFreq)
 
 
 
