@@ -7,27 +7,25 @@
 # - Most reacted to message by each person
 # - Images sent count
 # - 'XD' sent count
+# - Date of first sent message
 #To do:
 # - Directly addressed count (@name)
 # - Most used words by each participant 
 # - Avg message length
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
-# - Data visualisations
-# - Ignore punctuation marks
-# - Parse Polish symbols
-# - Show info like time of creation
 # - Allow to view by month/year
 # - Allow to filter reactions
 # - Maybe optimize so files are read once at the launch
 
 
 
+import datetime
 import json
 import os
 
-
 MSG_FOLDER_NAME = 'messeges/'
+
 
 
 
@@ -38,10 +36,17 @@ def readFile(fileName):
     file.close()
     return data
 
-#Returns list of files in a folder
+#Helper function that returns the number from file name
+#Used for sorting
+def customSort(file_name):
+    prefix, number = file_name.split("_")[0], int(file_name.split("_")[1].split(".")[0])
+    return number
+
+
+#Returns list of sorted files in a folder
 def getFiles(path):
     files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path,f))]
-    return files
+    return sorted(files, key=customSort)
 
 
 #Returns list of participants in a conversation
@@ -218,20 +223,30 @@ def messageLenAll(files):
             dictLenAll[key] += count[key]
     return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
 
+#Return the date of the first send message
+def getFirstMsgDate(files):
+    file = files[len(files)-1]
+    data = readFile(files[len(files)-1])
+    firstMsgMs = data['messages'][len(data['messages'])-1]['timestamp_ms']
+    firstMsgUnixUDT = int(firstMsgMs/1000)
+    return datetime.datetime.fromtimestamp(firstMsgUnixUDT).strftime('%d-%m-%Y %H:%M:%S')
+
+
 def main():
     files = getFiles(MSG_FOLDER_NAME)
-    participants = getParticipants(readFile(files[0]))
-    msgCount = countMessagesAll(files)
-    wordsUsed = countWords(files)
+    #participants = getParticipants(readFile(files[0]))
+    #msgCount = countMessagesAll(files)
+    #wordsUsed = countWords(files)
+    creationDate = getFirstMsgDate(files)
     reactionsRecived = []
     reactionsGiven = []
     mostReactedToMessage = []
     mediaSent = []
     xdCount = []
     msgLen = []
-    print(msgCount)
-    print(wordsUsed[0:10])
-
+    #print(msgCount)
+    #print(wordsUsed[0:10])
+    print(creationDate)
 
 
 
