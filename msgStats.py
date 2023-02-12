@@ -9,18 +9,18 @@
 # - Specific word sent count
 # - Date of first sent message
 # - Account for symbols and emojis
-#To do:
-# - Directly addressed count (@name)
-# - Most used words by each participant 
 # - Avg message length
+# - Directly addressed count (@name) - use count specific word
+#To do:
+# - Most used words by each participant 
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
 # - Allow to view by month/year
 # - Allow to filter reactions
 #Optimalisatio ideas:
-# - Load all the files at the start
-# - Convert functions to work on "data" not "file"
-# - "Fix" all the data before processing
+# - Load all the files at the start [DONE]
+# - Convert functions to work on "data" not "file" [DONE]
+# - "Fix" all the data before processing [DONE]
 
 
 
@@ -77,8 +77,7 @@ def getParticipants(data):
 
 #Retrun a dictionary with ammount of messeges sent by each person
 #Takes data form one json file
-def countMessages(file):
-    data = fixData(readFile(file))
+def countMessages(data):
     dictMsg = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if message['sender_name'] in dictMsg.keys():      #If a person was deleted from a conversation
@@ -86,17 +85,16 @@ def countMessages(file):
     return dictMsg                                        #will be messeges sent by him
 
 #Counts all messenges sent by each person
-def countMessagesAll(files):
-    dictCountAll = countMessages(files.pop(0))
-    counts = [countMessages(file) for file in files]
+def countMessagesAll(dataAll):
+    dictCountAll = countMessages(dataAll.pop(0))
+    counts = [countMessages(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
     return sorted(dictCountAll.items(), key=lambda x: x[1], reverse=True)
 
 #Returns a set of all unique words in a single file
-def getWordsUsed(file):
-    data = fixData(readFile(file))
+def getWordsUsed(data):
     words = set()
     for message in data['messages']:
         if 'content' in message:                           #Stickers dont have 'content' field
@@ -105,17 +103,17 @@ def getWordsUsed(file):
 
 
 #Retruns a set of all unique words in all files
-def getWordsUsedAll(files):
-    allWords = getWordsUsed(files.pop(0))
-    for file in files:
-        allWords = allWords | getWordsUsed(file)
+def getWordsUsedAll(dataAll):
+    allWords = getWordsUsed(dataAll.pop(0))
+    for data in dataAll:
+        allWords = allWords | getWordsUsed(data)
     return allWords
 
 #Retruns a sorted list of words and the amout of times they were used
-def countWords(files):
-    dictWords = {key:0 for key in getWordsUsedAll(files)}
-    for file in files:
-        for message in fixData(readFile(file))['messages']:
+def countWords(dataAll):
+    dictWords = {key:0 for key in getWordsUsedAll(dataAll)}
+    for data in dataAll:
+        for message in data['messages']:
             if 'content' in message:
                 words = [word.lower() for word in message['content'].split()]
                 for word in words:
@@ -123,8 +121,7 @@ def countWords(files):
     return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
 
 #Returns a dictionary with sum of reactions recived under all sent messages
-def countReactionsRecived(file,reaction = 'all'):
-    data = fixData(readFile(file))
+def countReactionsRecived(data,reaction = 'all'):
     dictReacts = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
@@ -133,18 +130,17 @@ def countReactionsRecived(file,reaction = 'all'):
 
 
 #Returns sorted list of participants and numbers of reactions under their messages
-def countReactionsRecivedAll(files):
-    dictReacts = countReactionsRecived(files.pop(0))
-    for file in files:
-        tempDict = countReactionsRecived(file)
+def countReactionsRecivedAll(dataAll):
+    dictReacts = countReactionsRecived(dataAll.pop(0))
+    for data in dataAll:
+        tempDict = countReactionsRecived(data)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
 
 
 #Returns a dictionary with sum of reactions given all sent messages
-def countReactionsGiven(file):
-    data = fixData(readFile(file))
+def countReactionsGiven(data):
     dictReacts = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
@@ -153,21 +149,20 @@ def countReactionsGiven(file):
     return dictReacts
     
 #Returns sorted list of participants and numbers of reactions left under messages
-def countReactionsGivenAll(files):
-    dictReacts = countReactionsGiven(files.pop(0))
+def countReactionsGivenAll(dataAll):
+    dictReacts = countReactionsGiven(dataAll.pop(0))
 
-    for file in files:
-        tempDict = countReactionsGiven(file)
+    for data in dataAll:
+        tempDict = countReactionsGiven(data)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
     return sorted(dictReacts.items(), key=lambda x: x[1], reverse=True)
 
 #Returns sorted list of participants, reactions recived, and the messege that recived the most reactions
-def mostReactedToMessage(files):
-    data = [fixData(readFile(file)) for file in files]
-    dictReacts = {key:[0,''] for key in getParticipants(data[0])}
-    for file in data:
-        for message in file['messages']:
+def mostReactedToMessage(dataAll):
+    dictReacts = {key:[0,''] for key in getParticipants(dataAll[0])}
+    for data in dataAll:
+        for message in data['messages']:
             if 'reactions' in message:
                 if len(message['reactions']) > dictReacts[message['sender_name']][0]:
                     dictReacts[message['sender_name']][0] = len(message['reactions'])
@@ -184,8 +179,7 @@ def mostReactedToMessage(files):
 
 #Retrun a dictionary with ammount of images and videos sent by each person
 #Takes data form one json file
-def countMedia(file):
-    data = fixData(readFile(file))
+def countMedia(data):
     dictMedia = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if message['sender_name'] in dictMedia.keys():
@@ -194,9 +188,9 @@ def countMedia(file):
     return dictMedia                                    
 
 #Counts all images and videos sent by each person
-def countMediaAll(files):
-    dictCountAll = countMedia(files.pop(0))
-    counts = [countMedia(file) for file in files]
+def countMediaAll(dataAll):
+    dictCountAll = countMedia(dataAll.pop(0))
+    counts = [countMedia(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
@@ -204,8 +198,7 @@ def countMediaAll(files):
 
 #Counts all the times word given as an argument was written by each participant
 #Takes data form one json file
-def wordCount(file,word):
-    data = fixData(readFile(file))
+def countGivenWord(data,word):
     dictWord = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if message['sender_name'] in dictWord.keys() and 'content' in message: 
@@ -214,9 +207,9 @@ def wordCount(file,word):
     return dictWord       
 
 #Counts all the times word given as an argument was written by each participant in whole conversation
-def wordCountAll(files):
-    dictCountAll = wordCount(files.pop(0))
-    counts = [wordCount(file) for file in files]
+def countGivenWordAll(dataAll,word):
+    dictCountAll = countGivenWord(dataAll.pop(0),word)
+    counts = [countGivenWord(data,word) for data in dataAll]
     for count in counts:
         for key in count:
             dictCountAll[key] += count[key]
@@ -224,46 +217,87 @@ def wordCountAll(files):
 
 #Counts summaric length of every message send by each participant
 #Takes data form one json file
-def messageLen(file):
-    data = fixData(readFile(file))
+def countMessageLen(data):
     dictLen = {key:0 for key in getParticipants(data)}
     for message in data['messages']:
         if message['sender_name'] in dictLen.keys() and 'content' in message: 
-            dictLen[message['sender_name']] += len(message['constent'])
+            dictLen[message['sender_name']] += len(message['content'])
     return dictLen       
 
 #Counts summaric length of every message each participant in whole conversation
-def messageLenAll(files):
-    dictLenAll = messageLen(files.pop(0))
-    counts = [messageLen(file) for file in files]
+def countMessageLenAll(dataAll):
+    dictLenAll = countMessageLen(dataAll.pop(0))
+    counts = [countMessageLen(data) for data in dataAll]
     for count in counts:
         for key in count:
             dictLenAll[key] += count[key]
     return sorted(dictLenAll.items(), key=lambda x: x[1], reverse=True)
 
 #Return the date of the first send message
-def getFirstMsgDate(files):
-    data = readFile(files[len(files)-1])
+def getFirstMsgDate(dataAll):
+    data = dataAll[len(dataAll)-1]
     firstMsgMs = data['messages'][len(data['messages'])-1]['timestamp_ms']
     firstMsgUnixUDT = int(firstMsgMs/1000)
     return datetime.datetime.fromtimestamp(firstMsgUnixUDT).strftime('%d-%m-%Y %H:%M:%S')
 
+#Returns the avrage message length for each participant
+def countAvgMessageLen(dataAll):
+    msgLen = countMessageLenAll(dataAll)
+    msgAmmount = countMessagesAll(dataAll)
+    dictAvgLen = {key:0 for key in getParticipants(dataAll[0])}
+    i = 0
+    for key in dictAvgLen.keys():
+        dictAvgLen[key] = round(msgLen[i][1]/msgAmmount[i][1],3)
+        i+=1
+    return sorted(dictAvgLen.items(), key=lambda x: x[1], reverse=True)
+
 
 def main():
     files = getFiles(MSG_FOLDER_NAME)
-    participants = getParticipants(readFile(files[0]))
-    msgCount = countMessagesAll(files)
-    wordsUsed = countWords(files)
-    creationDate = getFirstMsgDate(files)
-    reactionsRecived = countReactionsRecivedAll(files)
-    reactionsGiven = countReactionsGivenAll(files)
-    mostReactedTo = mostReactedToMessage(files)
-    mediaSent = []
-    xdCount = []
-    msgLen = []
-    print(msgCount)
-    print(wordsUsed[0:10])
-    print(creationDate)
+    #dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
+    dataAll = [readFile(file) for file in files]
+
+    #Testing
+    #print("------------Message Conut------------")
+    #msgCount = countMessagesAll(dataAll)
+    #print(msgCount)
+
+    #print("------------Most used words------------")
+    #wordsUsed = countWords(dataAll)
+    #print(wordsUsed[0:10])
+
+    #print("------------First message date------------")
+    #creationDate = getFirstMsgDate(dataAll)
+    #print(creationDate)
+
+    #print("------------Reactions recived------------")
+    #reactionsRecived = countReactionsRecivedAll(dataAll)
+    #print(reactionsRecived)
+
+    #print("------------Reactions given------------")
+    #reactionsGiven = countReactionsGivenAll(dataAll)    
+    #print(reactionsGiven)
+
+    #print("------------Most reacted to message------------")
+    #mostReactedTo = mostReactedToMessage(dataAll)
+    #print(mostReactedTo)
+
+    #print("------------Media sent------------")
+    #mediaSent = countMediaAll(dataAll)
+    #print(mediaSent)
+
+    #print("------------word Conut------------")
+    #xdCount = countGivenWordAll(dataAll,'xd')
+    #print(xdCount)
+
+
+    #print("----------Sumaric length of all messages--------")
+    #msgLen = countMessageLenAll(dataAll)
+    #print(msgLen)
+
+    #print("----------Avrage message length----------------")
+    avgLen = countAvgMessageLen(dataAll)
+    print(avgLen)
 
 
 
