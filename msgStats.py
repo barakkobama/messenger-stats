@@ -19,6 +19,8 @@
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
 # - Allow to view by month/year
+# - Maybe gui
+# - Data visualisation/formatted output
 #Optimalisatio ideas:
 # - Load all the files at the start [DONE]
 # - Convert functions to work on "data" not "file" [DONE]
@@ -30,6 +32,7 @@ import datetime
 import json
 import os
 from ftfy import fix_text
+import msgStatsVisualisation as vis
 
 MSG_FOLDER_NAME = 'messeges/'
 
@@ -39,6 +42,7 @@ HEART = '❤'
 HAHA = '😆'
 WOW = '😮'
 THUMBS_DOWN = '👎'
+CLOWN = '🤡'
 
 
 
@@ -314,13 +318,13 @@ def countReactionProp(dataAll,whatReaction = 'all',sort=True):
 
 def main():
     files = getFiles(MSG_FOLDER_NAME)
-    dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
+    #dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
 
-    #dataAll = [readFile(file) for file in files]
+    dataAll = [readFile(file) for file in files]
 
     #Testing
     #print("------------Message Conut------------")
-    #msgCount = countMessagesAll(dataAll)
+    #msgCount = countMessagesAll(dataAll,False)
     #print(msgCount)
 
     #print("------------Most used words------------")
@@ -372,14 +376,23 @@ def main():
     #reactCount = countReactionsRecivedAll(dataAll,HAHA)
     #print(reactCount)
 
+    #print("-----------Reaction count: HAHA-----------------------")
+    #reactCount = countReactionsRecivedAll(dataAll,HAHA)
+    #print(reactCount)
+
     
     #print("-------Reaction HAHA recived to messeges sent proporction--------")
     #reactProp = countReactionProp(dataAll,HAHA)
     #print(reactProp)
 
-    print("-------Reaction HEART recived to messeges sent proporction--------")
-    reactProp = countReactionProp(dataAll,HEART)
-    print(reactProp)
+
+    #print("-------Reaction HEART recived to messeges sent proporction--------")
+    #reactProp = countReactionProp(dataAll,HEART)
+    #print(reactProp)
+
+    #print("-----------Reaction count: WOW-----------------------")
+    #reactCount = countReactionsRecivedAll(dataAll,WOW)
+    #print(reactCount)
 
 
 
