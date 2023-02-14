@@ -1,0 +1,16 @@
+#group-name{
+    text-align: center;
+}
+#header{
+    display: flex;
+    margin: 0 100px;
+}
+
+#participants{
+    margin-right: auto;
+}
+
+.multi-graph-holder{
+    display: flex;
+    justify-content: center;
+}

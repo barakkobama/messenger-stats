@@ -186,21 +186,28 @@ def countReactionsGivenAll(dataAll,sort = True):
     return dictReacts
 
 #Returns sorted list of participants, reactions recived, and the messege that recived the most reactions
-def mostReactedToMessage(dataAll,sort = True):
+def mostReactedToMessage(dataAll,whatReaction ='all',sort = True):
     dictReacts = {key:[0,''] for key in getParticipants(dataAll[0])}
     for data in dataAll:
         for message in data['messages']:
             if 'reactions' in message:
-                if len(message['reactions']) > dictReacts[message['sender_name']][0]:
-                    dictReacts[message['sender_name']][0] = len(message['reactions'])
-                    if 'content' in message:
-                        dictReacts[message['sender_name']][1] = message['content']
-                    elif 'videos' in message:
-                        dictReacts[message['sender_name']][1] = message['videos'][0]['uri']
-                    elif 'photos' in message:
-                        dictReacts[message['sender_name']][1] = message['photos'][0]['uri']
-                    else:
-                        dictReacts[message['sender_name']][1] = 'unrecognised'
+                if whatReaction == 'all':
+                    reactionCount = len(message['reactions'])
+                else:
+                    reactionCount = 0
+                    for reaction in  message['reactions']:
+                        if reaction['reaction'] == whatReaction:
+                            reactionCount+=1
+                if reactionCount > dictReacts[message['sender_name']][0]:
+                        dictReacts[message['sender_name']][0] = reactionCount
+                        if 'content' in message:
+                            dictReacts[message['sender_name']][1] = message['content']
+                        elif 'videos' in message:
+                            dictReacts[message['sender_name']][1] = message['videos'][0]['uri']
+                        elif 'photos' in message:
+                            dictReacts[message['sender_name']][1] = message['photos'][0]['uri']
+                        else:
+                            dictReacts[message['sender_name']][1] = 'unrecognised'
     if sort:
         return sorted(dictReacts.items(), key=lambda x: x[1][0], reverse=True)
     return dictReacts
@@ -324,7 +331,9 @@ def main():
 
     #Testing
     #print("------------Message Conut------------")
-    #msgCount = countMessagesAll(dataAll,False)
+    msgCount = countMessagesAll(dataAll,False)
+    #vis.plot_pie_chart(msgCount,"Messages sent")
+    vis.plot_bar_chart(msgCount,"Messages sent")
     #print(msgCount)
 
     #print("------------Most used words------------")
@@ -393,6 +402,10 @@ def main():
     #print("-----------Reaction count: WOW-----------------------")
     #reactCount = countReactionsRecivedAll(dataAll,WOW)
     #print(reactCount)
+
+    #print("-------Most HAHA reacts message----------------")
+    #mostHAHAto = mostReactedToMessage(dataAll,whatReaction=HAHA)
+    #print(mostHAHAto)
 
 
 
