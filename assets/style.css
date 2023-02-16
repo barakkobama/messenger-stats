@@ -13,4 +13,28 @@
 .multi-graph-holder{
     display: flex;
     justify-content: center;
+    gap: 200px;
+}
+
+#most-reacted-to-list{
+    text-align: center;
+}
+
+.button-options{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.graph{
+    margin: 0 auto;
+    width: 500px;
+}
+
+.svg-container{
+    padding: 15px;
+}
+
+.most-used-words-graph{
+    width:1000px;
 }

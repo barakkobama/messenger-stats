@@ -19,8 +19,7 @@
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
 # - Allow to view by month/year
-# - Maybe gui
-# - Data visualisation/formatted output
+# - Data visualisation
 #Optimalisatio ideas:
 # - Load all the files at the start [DONE]
 # - Convert functions to work on "data" not "file" [DONE]
@@ -32,9 +31,8 @@ import datetime
 import json
 import os
 from ftfy import fix_text
-import msgStatsVisualisation as vis
 
-MSG_FOLDER_NAME = 'messages2/'
+MSG_FOLDER_NAME = 'messeges'
 
 #REACTIONS
 THUMBS_UP = '👍'
@@ -79,6 +77,11 @@ def fixData(data):
                 data['messages'][i]['reactions'][j]['reaction'] = fix_text(data['messages'][i]['reactions'][j]['reaction'])
                 data['messages'][i]['reactions'][j]['actor'] = fix_text(data['messages'][i]['reactions'][j]['actor'])
     return data
+
+
+#Returns name of the conversation
+def getGroupName(data):
+    return data['title']
 
 
 
@@ -179,7 +182,7 @@ def countReactionsGiven(data):
     
 #Returns sorted list of participants and numbers of reactions left under messages
 def countReactionsGivenAll(dataAll,sort = True):
-    dictReacts = getParticipants(data,dictForm=True)
+    dictReacts = getParticipants(dataAll[0],dictForm=True)
 
     for data in dataAll:
         tempDict = countReactionsGiven(data)
@@ -229,7 +232,7 @@ def countMedia(data):
 
 #Counts all images and videos sent by each person
 def countMediaAll(dataAll,sort=True):
-    dictCountAll = getParticipants(dataAll,dictForm=True)
+    dictCountAll = getParticipants(dataAll[0],dictForm=True)
     counts = [countMedia(data) for data in dataAll]
     for count in counts:
         for key in count:
@@ -327,9 +330,14 @@ def countReactionProp(dataAll,whatReaction = 'all',sort=True):
 
 
 
-def main():
-    files = getFiles(MSG_FOLDER_NAME)
-    dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
+
+
+#def main():
+  #  ...
+    #files = getFiles(MSG_FOLDER_NAME)
+    #dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
+
+
 
     #dataAll = [readFile(file) for file in files]
 
@@ -342,7 +350,8 @@ def main():
 
     #print("------------Most used words------------")
     #wordsUsed = countWords(dataAll)
-    #print(wordsUsed[0:100])
+    #for i in range (100):
+    #    print(str(i)+"."+str(wordsUsed[i]))
 
     #print("------------First message date------------")
     #creationDate = getFirstMsgDate(dataAll)
@@ -364,8 +373,8 @@ def main():
     #mediaSent = countMediaAll(dataAll)
     #print(mediaSent)
 
-    #print("------------Word Conut - 'kurwa' ------------")
-    #wordCount = countGivenWordAll(dataAll,'kurwa')
+    #print("------------Word Conut - 'xd' ------------")
+    #wordCount = countGivenWordAll(dataAll,'xd')
     #print(wordCount)
 
 
@@ -377,9 +386,9 @@ def main():
     #avgLen = countAvgMessageLen(dataAll)
     #print(avgLen)
 
-    print("------Word ocurrence frequency---------------")
-    wordFreq = countWordFreq(dataAll,'kurwa')
-    print(wordFreq)
+    #print("------Word ocurrence frequency- Kurwa--------------")
+    #wordFreq = countWordFreq(dataAll,'kurw')
+    #print(wordFreq)
 
    # print("-------Reaction recived to messeges sent proporction--------")
     #reactProp = countReactionProp(dataAll)
@@ -410,14 +419,3 @@ def main():
     #print("-------Most HAHA reacts message----------------")
     #mostHAHAto = mostReactedToMessage(dataAll,whatReaction=HAHA)
     #print(mostHAHAto)
-
-
-
-
-
-
-
-
-
-if __name__ == "__main__":
-    main()
