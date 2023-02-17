@@ -6,3 +6,5 @@ datetime
 json
 os
 ftfy
+pandas
+gunicorn
