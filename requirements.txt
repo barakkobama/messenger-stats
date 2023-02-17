@@ -1,8 +1,4 @@
 dash
 dash_daq
-datetime
-json
-os
 ftfy
-pandas
 gunicorn
