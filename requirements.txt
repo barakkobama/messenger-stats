@@ -1,0 +1,8 @@
+dash
+dash_daq
+plotly.express
+plotly.graph_objs
+datetime
+json
+os
+ftfy
