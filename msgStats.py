@@ -132,7 +132,7 @@ def getWordsUsedAll(dataAll):
     return allWords
 
 #Retruns a sorted list of words and the amout of times they were used
-def countWords(dataAll,sort = True):
+def countWords(dataAll,sort = True,range = 10):
     dictWords = {key:0 for key in getWordsUsedAll(dataAll)}
     for data in dataAll:
         for message in data['messages']:
@@ -141,7 +141,7 @@ def countWords(dataAll,sort = True):
                 for word in words:
                     dictWords[word] += 1
     if sort:
-        return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)
+        return sorted(dictWords.items(), key=lambda x: x[1], reverse=True)[0:range]
     return dictWords
 
 #Returns a dictionary with sum of reactions recived under all sent messages
@@ -172,20 +172,25 @@ def countReactionsRecivedAll(dataAll,whatReaction = 'all',sort = True):
 
 
 #Returns a dictionary with sum of reactions given all sent messages
-def countReactionsGiven(data):
+def countReactionsGiven(data,whatReaction = 'all'):
     dictReacts = getParticipants(data,dictForm=True)
     for message in data['messages']:
-        if 'reactions' in message:                          #Messages without reactions dont have 'reactions' section
-            for reaction in message['reactions']:
-                dictReacts[reaction['actor']] += 1
+        if 'reactions' in message:
+            if whatReaction == 'all':                    #Messages without reactions dont have 'reactions' section
+                for reaction in message['reactions']:
+                    dictReacts[reaction['actor']] += 1
+            else:
+                for reaction in message['reactions']:
+                    if reaction['reaction'] == whatReaction:
+                        dictReacts[reaction['actor']] += 1
     return dictReacts
     
 #Returns sorted list of participants and numbers of reactions left under messages
-def countReactionsGivenAll(dataAll,sort = True):
+def countReactionsGivenAll(dataAll,whatReaction='all',sort = True):
     dictReacts = getParticipants(dataAll[0],dictForm=True)
 
     for data in dataAll:
-        tempDict = countReactionsGiven(data)
+        tempDict = countReactionsGiven(data,whatReaction)
         for key in dictReacts:
             dictReacts[key] += tempDict[key]
     if sort:

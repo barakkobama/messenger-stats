@@ -26,15 +26,18 @@
     gap: 10px;
 }
 
-.graph{
-    margin: 0 auto;
-    width: 500px;
+#most-used-words-graph{
+    margin: 0 50px;
 }
 
-.svg-container{
-    padding: 15px;
+.long-graph-holder{
+    justify-content: center;
 }
 
-.most-used-words-graph{
-    width:1000px;
+.graph-name{
+    text-align: center;
+}
+
+#most-reacted-to-list{
+    text-align: left;
 }
