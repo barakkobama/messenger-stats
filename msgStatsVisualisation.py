@@ -6,7 +6,7 @@ import dash_daq as daq
 import plotly.graph_objs as go
 import msgStats
 
-MSG_FOLDER_NAME = 'messeges'
+MSG_FOLDER_NAME = 'messages'
 
 
 def create_bar_chart(data_dict, title = '',width = 600):
