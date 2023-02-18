@@ -14,12 +14,12 @@
 # - Frequency of given word ocurrence
 # - Proportion of reactions recived to messeges sent
 # - Allow to chose specific reaction
+# - Data visualisation
 #To do:
 # - Most used words by each participant 
 #Other to do things:
 # - Allow to give path to folder messeges as an argument
 # - Allow to view by month/year
-# - Data visualisation
 #Optimalisatio ideas:
 # - Load all the files at the start [DONE]
 # - Convert functions to work on "data" not "file" [DONE]
@@ -333,94 +333,3 @@ def countReactionProp(dataAll,whatReaction = 'all',sort=True):
         return sorted(dictReactProp.items(), key=lambda x: x[1], reverse=True)
     return dictReactProp
 
-
-
-
-
-#def main():
-  #  ...
-    #files = getFiles(MSG_FOLDER_NAME)
-    #dataAll = [fixData(readFile(file)) for file in files]  #takes a long time to finish
-
-
-
-    #dataAll = [readFile(file) for file in files]
-
-    #Testing
-    #print("------------Message Count------------")
-    #msgCount = countMessagesAll(dataAll,False)
-    #vis.plot_pie_chart(msgCount,"Messages sent")
-    #vis.plot_bar_chart(msgCount,"Messages sent")
-    #print(msgCount)
-
-    #print("------------Most used words------------")
-    #wordsUsed = countWords(dataAll)
-    #for i in range (100):
-    #    print(str(i)+"."+str(wordsUsed[i]))
-
-    #print("------------First message date------------")
-    #creationDate = getFirstMsgDate(dataAll)
-    #print(creationDate)
-
-    #print("------------Reactions recived------------")
-    #reactionsRecived = countReactionsRecivedAll(dataAll)
-    #print(reactionsRecived)
-
-    #print("------------Reactions given------------")
-    #reactionsGiven = countReactionsGivenAll(dataAll)    
-    #print(reactionsGiven)
-
-    #print("------------Most reacted to message------------")
-    #mostReactedTo = mostReactedToMessage(dataAll)
-    #print(mostReactedTo)
-
-    #print("------------Media sent------------")
-    #mediaSent = countMediaAll(dataAll)
-    #print(mediaSent)
-
-    #print("------------Word Conut - 'xd' ------------")
-    #wordCount = countGivenWordAll(dataAll,'xd')
-    #print(wordCount)
-
-
-    #print("----------Sumaric length of all messages--------")
-    #msgLen = countMessageLenAll(dataAll)
-    #print(msgLen)
-
-    #print("----------Avrage message length----------------")
-    #avgLen = countAvgMessageLen(dataAll)
-    #print(avgLen)
-
-    #print("------Word ocurrence frequency- Kurwa--------------")
-    #wordFreq = countWordFreq(dataAll,'kurw')
-    #print(wordFreq)
-
-   # print("-------Reaction recived to messeges sent proporction--------")
-    #reactProp = countReactionProp(dataAll)
-    #print(reactProp)
-
-    #print("-----------Reaction count: HAHA-----------------------")
-    #reactCount = countReactionsRecivedAll(dataAll,HAHA)
-    #print(reactCount)
-
-    #print("-----------Reaction count: HAHA-----------------------")
-    #reactCount = countReactionsRecivedAll(dataAll,HAHA)
-    #print(reactCount)
-
-    
-    #print("-------Reaction HAHA recived to messeges sent proporction--------")
-    #reactProp = countReactionProp(dataAll,HAHA)
-    #print(reactProp)
-
-
-    #print("-------Reaction HEART recived to messeges sent proporction--------")
-    #reactProp = countReactionProp(dataAll,HEART)
-    #print(reactProp)
-
-    #print("-----------Reaction count: WOW-----------------------")
-    #reactCount = countReactionsRecivedAll(dataAll,WOW)
-    #print(reactCount)
-
-    #print("-------Most HAHA reacts message----------------")
-    #mostHAHAto = mostReactedToMessage(dataAll,whatReaction=HAHA)
-    #print(mostHAHAto)

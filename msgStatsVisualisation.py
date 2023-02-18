@@ -1,10 +1,3 @@
-#Todo:
-# - Formating
-# - Option to choose folder with messages
-# - Option to specify time period
-# - Maybe show most used words in list form
-
-
 
 import plotly.express as px
 import dash
