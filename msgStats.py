@@ -32,7 +32,7 @@ import json
 import os
 from ftfy import fix_text
 
-MSG_FOLDER_NAME = 'messagas'
+MSG_FOLDER_NAME = 'messages'
 
 #REACTIONS
 THUMBS_UP = '👍'
